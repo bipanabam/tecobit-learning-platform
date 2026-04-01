@@ -1,5 +1,7 @@
 from .models import Course, Lesson, CourseStatus
 
+from enrollments.models import Enrollment
+
 def get_published_courses():
     return Course.objects.filter(status__in=[CourseStatus.ONGOING,CourseStatus.COMPLETED,])
 
@@ -42,4 +44,18 @@ def get_lesson_detail(course_id=None, lesson_id=None):
                         CourseStatus.COMING_SOON])
     except:
         pass
+    
     return obj
+
+def user_has_access_to_course(user, course):
+    if course.access == "any":
+        return True
+    
+    if not user.is_authenticated:
+        return False
+
+    return Enrollment.objects.filter(
+        student=user,
+        course=course,
+        is_active=True
+    ).exists()

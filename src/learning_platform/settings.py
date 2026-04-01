@@ -73,7 +73,6 @@ INSTALLED_APPS = [
     'users',
     'courses',
     'enrollments',
-    'emails',
 ]
 
 # tailwind theme app

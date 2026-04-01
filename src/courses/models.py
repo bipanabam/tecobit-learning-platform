@@ -9,7 +9,7 @@ helpers.cloudinary_init()
 # Create your models here.
 class AccessRequirement(models.TextChoices):
     ANYONE = "any", "Anyone"
-    EMAIL_REQUIRED = "email_required", "Email Required"
+    ENROLLED = "enrolled", "Enrolled"
 
 class CourseStatus(models.TextChoices):
     COMPLETED = "completed", "Completed"
@@ -68,7 +68,7 @@ class Course(models.Model):
     access = models.CharField(
         max_length=20, 
         choices=AccessRequirement.choices,
-        default=AccessRequirement.EMAIL_REQUIRED)
+        default=AccessRequirement.ENROLLED)
     status = models.CharField(
         max_length=10, 
         choices=CourseStatus.choices, 
@@ -160,8 +160,8 @@ class Lesson(models.Model):
         return self.video is not None
     
     @property
-    def requires_email(self):
-        return self.course.access == AccessRequirement.EMAIL_REQUIRED
+    def requires_enrollment(self):
+        return self.course.access == AccessRequirement.ENROLLED
 
     @property
     def path(self):
@@ -192,7 +192,18 @@ class Lesson(models.Model):
             as_html=False,
             width=382,
         )
-    
+        
+    def get_next_lesson(self):
+        return Lesson.objects.filter(
+            course=self.course, 
+            order__gt=self.order
+        ).order_by('order').first()
+
+    def get_previous_lesson(self):
+        return Lesson.objects.filter(
+            course=self.course, 
+            order__lt=self.order
+        ).order_by('-order').first()
     
     def __str__(self):
         return self.title

@@ -11,9 +11,10 @@ class AccessRequirement(models.TextChoices):
     ANYONE = "any", "Anyone"
     EMAIL_REQUIRED = "email_required", "Email Required"
 
-class PublishStatus(models.TextChoices):
-    PUBLISHED = "published", "Published"
+class CourseStatus(models.TextChoices):
+    COMPLETED = "completed", "Completed"
     COMING_SOON = "soon", "Coming Soon"
+    ONGOING = "ongoing", "Ongoing"
     DRAFT = "draft", "Draft"
 
 def handle_upload(instance, filename):
@@ -58,7 +59,9 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True)
     public_id = models.CharField(max_length=140, blank=True, null=True, db_index=True)
     # image = models.ImageField(upload_to=handle_upload, blank=True, null=True)
-    image = CloudinaryField("image", null=True, 
+    image = CloudinaryField("image", 
+                            resource_type="image",
+                            null=True, 
                             public_id_prefix=get_public_id_prefix,
                             display_name = get_display_name,
                             tags=['course', 'thumbnail'])
@@ -68,8 +71,8 @@ class Course(models.Model):
         default=AccessRequirement.EMAIL_REQUIRED)
     status = models.CharField(
         max_length=10, 
-        choices=PublishStatus.choices, 
-        default=PublishStatus.DRAFT)
+        choices=CourseStatus.choices, 
+        default=CourseStatus.DRAFT)
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -109,8 +112,8 @@ class Course(models.Model):
         )
     
     @property
-    def is_published(self):
-        return self.status == PublishStatus.PUBLISHED
+    def is_completed(self):
+        return self.status == CourseStatus.COMPLETED
     
     def __str__(self):
         return self.title
@@ -122,6 +125,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, null=True)
     public_id = models.CharField(max_length=140, blank=True, null=True, db_index=True)
     thumbnail = CloudinaryField("image", 
+                            resource_type="image",
                             public_id_prefix=get_public_id_prefix,
                             display_name = get_display_name,
                             tags=['lesson', 'thumbnail'],
@@ -137,8 +141,8 @@ class Lesson(models.Model):
     "can they see this?")
     status = models.CharField(
         max_length=10, 
-        choices=PublishStatus.choices, 
-        default=PublishStatus.PUBLISHED)
+        choices=CourseStatus.choices, 
+        default=CourseStatus.ONGOING)
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -149,7 +153,7 @@ class Lesson(models.Model):
 
     @property
     def is_coming_soon(self):
-        return self.status == PublishStatus.COMING_SOON
+        return self.status == CourseStatus.COMING_SOON
     
     @property
     def has_video(self):

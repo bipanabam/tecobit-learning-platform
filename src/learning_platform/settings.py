@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     # local app
     'users',
     'courses',
+    'enrollments',
     'emails',
 ]
 

@@ -16,7 +16,7 @@ class LessonInline(admin.StackedInline):
             field_name="thumbnail",
             width=200,
         )
-        return format_html(f"<img src={url} />")
+        return format_html("<img src='{}' />", url)
 
     display_image.short_description = 'Current Image'
 
@@ -36,6 +36,7 @@ class CourseAdmin(admin.ModelAdmin):
     inlines = [LessonInline]
     list_display = ['title', 'status', 'access']
     list_filter = ['status', 'access']
+    search_fields = ['title', 'description']
     fields = ['public_id', 'title', 'description', 'status', 'image', 'access', 'display_image']
     readonly_fields = ['public_id', 'display_image']
 
@@ -45,7 +46,7 @@ class CourseAdmin(admin.ModelAdmin):
             field_name="image",
             width=200,
         )
-        return format_html(f"<img src={url} />")
+        return format_html("<img src='{}' />", url)
 
     display_image.short_description = 'Current Image'
 

@@ -1,7 +1,7 @@
-from .models import Course, Lesson, PublishStatus
+from .models import Course, Lesson, CourseStatus
 
 def get_published_courses():
-    return Course.objects.filter(status=PublishStatus.PUBLISHED)
+    return Course.objects.filter(status__in=[CourseStatus.ONGOING,CourseStatus.COMPLETED,])
 
 
 def get_course_detail(course_id=None):
@@ -11,7 +11,7 @@ def get_course_detail(course_id=None):
     try:
         obj = Course.objects.get(
             public_id=course_id, 
-            status=PublishStatus.PUBLISHED)
+            status=CourseStatus.ONGOING)
     except:
         pass
     return obj
@@ -21,9 +21,10 @@ def get_course_lessons(course_obj):
     if not isinstance(course_obj, Course):
         return lessons
     lessons = course_obj.lessons.filter(
-            course__status=PublishStatus.PUBLISHED,
-            status__in=[PublishStatus.PUBLISHED, 
-                        PublishStatus.COMING_SOON])
+            course__status=CourseStatus.ONGOING,
+            status__in=[CourseStatus.ONGOING, 
+                        CourseStatus.COMPLETED,
+                        CourseStatus.COMING_SOON])
     return lessons
 
 
@@ -34,10 +35,11 @@ def get_lesson_detail(course_id=None, lesson_id=None):
     try:
         obj = Lesson.objects.get(
             course__public_id=course_id,
-            course__status=PublishStatus.PUBLISHED,
+            course__status=CourseStatus.ONGOING,
             public_id=lesson_id, 
-            status__in=[PublishStatus.PUBLISHED,
-                         PublishStatus.COMING_SOON])
+            status__in=[CourseStatus.ONGOING,
+                        CourseStatus.COMPLETED,
+                        CourseStatus.COMING_SOON])
     except:
         pass
     return obj
